@@ -1,0 +1,39 @@
+//Perlin Noise Visualiser
+
+//This examples renders a persistent 2D Perlin Noise "Map" that the
+//user can explore with WASD keys
+
+let WIDTH = 800;
+let HEIGHT = 600;
+let frame_buffer = ByteArray.with_size(WIDTH * HEIGHT * 4);
+
+// Helper function to convert RGB values to a 32-bit color
+fun rgb32(r, g, b) {
+    return 0xFF_00_00_00 | (r << 16) | (g << 8) | b;
+}
+
+//Draw the Window
+let window = $window_create(WIDTH, HEIGHT, "Perlin Noise", 0);
+
+loop {
+
+    for(let var i=0;i<HEIGHT; ++i)
+    {
+        for(let var j=0;j<WIDTH; ++j)
+        {
+            let var redscale = ((255/(WIDTH-1))*j).trunc();
+            let var greenscale  = ((255/(HEIGHT-1))*i).trunc();
+            let var bluescale = 0;
+            frame_buffer.set_u32(i*WIDTH + j, rgb32(redscale,greenscale,bluescale));
+        }
+    }
+    $window_draw_frame(window, frame_buffer);
+
+    let msg = $actor_recv();
+    if (!(msg instanceof UIEvent)) {
+        continue;
+    }
+    if (msg.kind == 'CLOSE_WINDOW' || (msg.kind == 'KEY_DOWN' && msg.key == 'ESCAPE')) {
+        break;
+    }
+}
